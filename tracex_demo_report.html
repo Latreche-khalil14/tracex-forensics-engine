@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TraceX Forensics Report</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #334155;
+            --text-heading: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2563eb;
+            --high: #dc2626;
+            --med: #d97706;
+            --low: #16a34a;
+            --code-bg: #f1f5f9;
+            --code-border: #e2e8f0;
+            --badge-high-bg: #fee2e2;
+            --badge-med-bg: #fef3c7;
+            --badge-low-bg: #dcfce7;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --row-hover: #f8fafc;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --high: #f85149;
+            --med: #d29922;
+            --low: #3fb950;
+            --code-bg: #21262d;
+            --code-border: #30363d;
+            --badge-high-bg: rgba(248, 81, 73, 0.15);
+            --badge-med-bg: rgba(210, 153, 34, 0.15);
+            --badge-low-bg: rgba(63, 185, 80, 0.15);
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            --row-hover: #1c2128;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 1.25rem 0.75rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 98%;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo-area h1 {
+            margin: 0;
+            color: var(--text-heading);
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        [data-theme="dark"] .logo-badge {
+            background: rgba(56, 139, 253, 0.15);
+            color: #58a6ff;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.35rem;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .meta-timestamp {
+            text-align: right;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .theme-toggle-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.35rem 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-label {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-top: 0.5rem;
+            line-height: 1.1;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+            gap: 1.25rem;
+            align-items: start;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1150px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .charts-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .chart-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.85rem;
+            text-align: center;
+        }
+
+        .chart-box h3 {
+            font-size: 0.9rem;
+            color: var(--text-heading);
+            margin: 0 0 0.6rem 0;
+            font-weight: 600;
+        }
+
+        .chart-box img {
+            max-width: 100%;
+            max-height: 235px;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: var(--shadow);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            margin: 0;
+            color: var(--text-heading);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            font-size: 0.925rem;
+        }
+
+        th {
+            background: var(--bg);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.775rem;
+            letter-spacing: 0.05em;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: var(--row-hover);
+        }
+
+        code {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            color: var(--text-heading);
+            padding: 0.2rem 0.45rem;
+            border-radius: 5px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-high {
+            background: var(--badge-high-bg);
+            color: var(--high);
+            border: 1px solid var(--high);
+        }
+
+        .badge-medium {
+            background: var(--badge-med-bg);
+            color: var(--med);
+            border: 1px solid var(--med);
+        }
+
+        .badge-low {
+            background: var(--badge-low-bg);
+            color: var(--low);
+            border: 1px solid var(--low);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 3rem;
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <h1>TraceX Forensics <span class="logo-badge">v2.0</span></h1>
+                <div class="subtitle">Deterministic Event Timeline Forensics Engine &amp; Incident Report</div>
+            </div>
+            <div class="header-actions">
+                <div class="meta-timestamp">
+                    <div><strong>Report Generated</strong></div>
+                    <div>2026-09-22 14:17:43 UTC</div>
+                </div>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <span id="themeIcon">🌙</span> <span id="themeText">Dark Mode</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Events Analyzed</div>
+                <div class="kpi-value">13</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Anomalies Detected</div>
+                <div class="kpi-value" style="color: var(--high)">6</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Anomaly Ratio</div>
+                <div class="kpi-value">46.15%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Critical / High Incidents</div>
+                <div class="kpi-value" style="color: var(--high)">3</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Left Column: Findings Table (الذي فوقه على اليسار) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Forensic Findings &amp; Timeline Violations</h2>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Severity</th>
+                                <th>Violation Type</th>
+                                <th>Forensic Investigation Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+        <tr>
+            <td><strong>#1</strong></td>
+            <td><code>7</code></td>
+            <td><strong>ali</strong></td>
+            <td><code>read</code></td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td><strong>ACTION_WHILE_LOGGED_OUT</strong></td>
+            <td>Unauthorized execution: User 'ali' performed 'read' while logged out.</td>
+        </tr>
+        
+
+        <tr>
+            <td><strong>#2</strong></td>
+            <td><code>7</code></td>
+            <td><strong>ali</strong></td>
+            <td><code>read</code></td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td><strong>MISSING_PREREQUISITE</strong></td>
+            <td>Integrity violation: Action 'read' requires prerequisite 'login' to have occurred within the current active session.</td>
+        </tr>
+        
+
+        <tr>
+            <td><strong>#3</strong></td>
+            <td><code>9</code></td>
+            <td><strong>ali</strong></td>
+            <td><code>login</code></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td><strong>DUPLICATE_LOGIN</strong></td>
+            <td>User 'ali' attempted login while a previous active session was already established.</td>
+        </tr>
+        
+
+        <tr>
+            <td><strong>#4</strong></td>
+            <td><code>10</code></td>
+            <td><strong>ali</strong></td>
+            <td><code>hack</code></td>
+            <td><span class="badge badge-medium">MEDIUM</span></td>
+            <td><strong>UNKNOWN_ACTION</strong></td>
+            <td>Unrecognized action 'hack' executed by user 'ali'. Possible evasion or unsupported verb.</td>
+        </tr>
+        
+
+        <tr>
+            <td><strong>#5</strong></td>
+            <td><code>11</code></td>
+            <td><strong>sara</strong></td>
+            <td><code>logout</code></td>
+            <td><span class="badge badge-low">LOW</span></td>
+            <td><strong>LOGOUT_WITHOUT_LOGIN</strong></td>
+            <td>User 'sara' issued a logout command without an existing active session.</td>
+        </tr>
+        
+
+        <tr>
+            <td><strong>#6</strong></td>
+            <td><code>13</code></td>
+            <td><strong>sara</strong></td>
+            <td><code>payment</code></td>
+            <td><span class="badge badge-high">HIGH</span></td>
+            <td><strong>MISSING_PREREQUISITE</strong></td>
+            <td>Integrity violation: Action 'payment' requires prerequisite 'order_created' to have occurred within the current active session.</td>
+        </tr>
+        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Column: Visualizations & Analytics (هذا على اليمين) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Forensic Visualizations &amp; Incident Analytics</h2>
+                </div>
+                <div class="charts-column">
+                    <div class="chart-box">
+                        <h3>Anomalies by Severity Distribution</h3>
+                        <img src="tracex_severity_chart.png" alt="Severity Chart" onerror="this.parentElement.style.display='none'" />
+                    </div>
+                    <div class="chart-box">
+                        <h3>Temporal Anomaly Frequency</h3>
+                        <img src="tracex_timeline_chart.png" alt="Timeline Chart" onerror="this.parentElement.style.display='none'" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            TraceX Timeline Forensics Engine &bull; Pure Python &bull; Confidential Incident Documentation
+        </footer>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme') || 'light';
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (next === 'dark') {
+                icon.textContent = '☀️';
+                text.textContent = 'Light Mode';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark Mode';
+            }
+        }
+    </script>
+</body>
+</html>
