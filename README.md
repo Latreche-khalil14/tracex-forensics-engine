@@ -155,6 +155,8 @@ TraceX automatically compiles and renders high-resolution forensic visualization
 
 TraceX generates an interactive incident dashboard tailored for Security Operations Centers (SOC):
 
+![TraceX Interactive Dashboard](web-screen.png)
+
 * **⚡ Side-by-Side Dual Pane:** Forensic Findings Table on the left paired with live visual analytics on the right.
 * **🌓 Light / Dark Mode:** One-click instant theme toggle for daytime auditing or dark-mode SOC environments.
 * **📈 Executive KPIs:** Real-time summary cards highlighting total logs analyzed, anomaly ratio, and critical high-risk incidents.
